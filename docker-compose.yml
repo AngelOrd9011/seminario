@@ -1,0 +1,59 @@
+version: '3.1'
+networks:
+  hasura-net:
+
+volumes:
+  hasura-datastore:
+
+services:
+  postgres:
+    image: postgres:13
+    volumes:
+      - hasura-datastore:/var/lib/postgresql/data
+    networks:
+      - hasura-net
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+  hasura:
+    image: hasura/graphql-engine:v2.0.0-alpha.10.cli-migrations-v3
+    restart: unless-stopped
+    networks:
+      - hasura-net
+    environment:
+      HASURA_GRAPHQL_MIGRATIONS_DIR: /hasura-migrations/migrations
+      HASURA_GRAPHQL_METADATA_DIR: /hasura-migrations/metadata
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: 'true'
+      HASURA_GRAPHQL_CORS_DOMAIN: '*'
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: 'anonymous'
+      HASURA_GRAPHQL_DEV_MODE: 'true'
+      HASURA_GRAPHQL_JWT_SECRET: '{"jwk_url": "http://keycloak:8080/auth/realms/TESI/protocol/openid-connect/certs"}'
+      HASURA_GRAPHQL_ADMIN_SECRET: 'secret'
+    volumes:
+      - ./hasura-migrations:/hasura-migrations
+    ports:
+      - 4000:8080
+    depends_on:
+      - keycloak
+  keycloak:
+    image: jboss/keycloak:12.0.4
+    networks:
+      - hasura-net
+    volumes:
+      - ./keycloak:/tmp/keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: postgres
+      DB_USER: postgres
+      DB_SCHEMA: public
+      DB_PASSWORD: postgres
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+      KEYCLOAK_IMPORT: /tmp/keycloak/TESI-realm.json -Dkeycloak.profile.feature.upload_scripts=enabled
+    ports:
+      - 8082:8080
+    depends_on:
+      - postgres

@@ -1,0 +1,31 @@
+table:
+  name: catalogoEjemplo
+  schema: public
+insert_permissions:
+- permission:
+    backend_only: false
+    check: {}
+    columns:
+    - id
+    - dato
+  role: Administrator
+select_permissions:
+- permission:
+    allow_aggregations: true
+    columns:
+    - id
+    - dato
+    filter: {}
+  role: Administrator
+update_permissions:
+- permission:
+    check: {}
+    columns:
+    - id
+    - dato
+    filter: {}
+  role: Administrator
+delete_permissions:
+- permission:
+    filter: {}
+  role: Administrator
