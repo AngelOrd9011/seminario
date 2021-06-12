@@ -43,7 +43,7 @@ const App = ({ roles }) => {
   let rightMenuClick = false;
   let configClick = false;
 
-  let curp = keycloak.tokenParsed.preferred_username.toUpperCase();
+  let matricula = keycloak.tokenParsed.preferred_username.toUpperCase();
 
   const menuTop = [
     {
@@ -51,7 +51,7 @@ const App = ({ roles }) => {
       icon: 'pi pi-fw pi-home',
       items: [
         { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/' },
-        { label: 'Perfil de Usuario', icon: 'pi pi-fw pi-users', to: '/perfil'},
+        { label: 'Perfil de Usuario', icon: 'pi pi-fw pi-user', to: '/perfil'},
       ],
     },
     { separator: true },
@@ -63,6 +63,9 @@ const App = ({ roles }) => {
       label: 'Menu Administrador',
       icon: 'pi pi-fw pi-align-left',
       items: [
+        { label: 'Alumnos', icon: 'pi pi-fw pi-users', to: '/' },
+        { label: 'Profesores', icon: 'pi pi-fw pi-users', to: '/' },
+        { label: 'Cursos', icon: 'pi pi-paperclip', to: '/' },
         {
           label: 'Catalogos',
           icon: 'pi pi-fw pi-align-left',
@@ -82,7 +85,19 @@ const App = ({ roles }) => {
       label: 'Menu Profesor',
       icon: 'pi pi-fw pi-home',
       items: [
-        
+        { label: 'Subir calificaciones', icon: 'pi pi-sort-numeric-up-alt', to: '/' },
+      ],
+    },
+    { separator: true },
+  ];
+  const menuStudent = [
+    {
+      label: 'Menu Alumno',
+      icon: 'pi pi-fw pi-home',
+      items: [
+        { label: 'Mis calificaciones', icon: 'pi pi-chart-line', to: '/' },
+        { label: 'Expediente', icon: 'pi pi-fw pi-file-o', to: '/'},
+        { label: 'Reconocimientos', icon: 'pi pi-fw pi-star-o', to:'/'}
       ],
     },
     { separator: true },
@@ -91,21 +106,12 @@ const App = ({ roles }) => {
   const menu = () => {
     let rolesint = [];
     let menu = [];
-    // if (query.busquedaPorActivos({ curp: curp }).length && query.busquedaPorActivos({ curp: curp })[0].puesto[0].tipo_personal == 'MANDO') {
-    //   rolesint.push('Lider');
-    // }
-    // if (
-    //   query.busquedaPorActivos({ curp: curp }).length &&
-    //   query.busquedaPorActivos({ curp: curp })[0].puesto[0].nivel_equivalencia == 'TITULAR DE UNIDAD U HOMÓLOGO (A)'
-    // ) {
-    //   rolesint.push('Titular');
-    // }
-    //Hacemos un merge de los roles que obtenemos de Rusp con los que estan en Keycloak
     rolesint = [...new Set([...rolesint, ...roles])];
     menu.push(...menuTop);
     rolesint.forEach((element, index) => {
-      if (element == 'user') menu.push(...menuTeacher);
-      if (element == 'Administrator') menu.push(...menuAdmin);
+      if (element === 'Student') menu.push(...menuStudent);
+      if (element === 'Teacher') menu.push(...menuTeacher);
+      if (element === 'Administrator') menu.push(...menuAdmin);
     });
     return menu;
   };
@@ -390,23 +396,6 @@ const App = ({ roles }) => {
         onMenuitemClick={onMenuitemClick}
         onRootMenuitemClick={onRootMenuitemClick}
       ></AppMenu>
-
-
-      {/* <AppConfig
-        configActive={configActive}
-        menuMode={menuMode}
-        onMenuModeChange={onMenuModeChange}
-        menuTheme={menuTheme}
-        onMenuThemeChange={onMenuThemeChange}
-        colorScheme={colorScheme}
-        onColorSchemeChange={onColorSchemeChange}
-        onConfigClick={onConfigClick}
-        onConfigButtonClick={onConfigButtonClick}
-        rippleActive={ripple}
-        onRippleChange={onRippleChange}
-        inputStyle={inputStyle}
-        onInputStyleChange={onInputStyleChange}
-      ></AppConfig> */}
 
       <AppSearch searchActive={searchActive} onSearchClick={onSearchClick} onSearchHide={onSearchHide} />
 

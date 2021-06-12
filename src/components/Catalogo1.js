@@ -1,7 +1,6 @@
 import { useKeycloak } from '@react-keycloak/web';
 
-// import { query, client } from '../graphql-hasura-generated';
-// import { query as query2, client as client2 } from '../graphql-hasura-generated';
+
 import { graphql } from '@gqless/react';
 import { Suspense } from 'react';
 
@@ -20,8 +19,6 @@ import { Card } from 'primereact/card';
 
 import { gql, useQuery, Query, useApolloClient, useMutation, Mutation, useLazyQuery } from '@apollo/client';
 
-// new Logger(client, true);
-// new Logger(client2, true);
 const updateMutation = gql`
   mutation MyUpdateMutation($id: Int!, $_set: catalogoEjemplo_set_input!) {
     update_catalogoEjemplo_by_pk(pk_columns: { id: $id }, _set: $_set) {
@@ -65,16 +62,16 @@ export const Catalogo1 = graphql(() => {
   const [loading, setLoading] = useState(true);
   const client = useApolloClient();
   const { keycloak, initialized } = useKeycloak();
-  const curp = keycloak.tokenParsed.preferred_username.toUpperCase();
-  const [colors, setcolors] = useState(null);
-  const [colorDialog, setcolorDialog] = useState(false);
-  const [deletecolorDialog, setdeletecolorDialog] = useState(false);
-  const [deletecolorsDialog, setdeletecolorsDialog] = useState(false);
-  const [emptycolor, setemptycolor] = useState({
-    dato: 'Nuevo color...',
+  const matricula = keycloak.tokenParsed.preferred_username.toUpperCase();
+  const [maestros, setmaestros] = useState(null);
+  const [maestroDialog, setmaestroDialog] = useState(false);
+  const [deletemaestroDialog, setdeletemaestroDialog] = useState(false);
+  const [deletemaestrosDialog, setdeletemaestrosDialog] = useState(false);
+  const [emptymaestro, setemptymaestro] = useState({
+    dato: 'Nuevo maestro...',
   });
-  const [color, setcolor] = useState(emptycolor);
-  const [selectedcolors, setselectedcolors] = useState(null);
+  const [maestro, setmaestro] = useState(emptymaestro);
+  const [selectedmaestros, setselectedmaestros] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
@@ -89,71 +86,71 @@ export const Catalogo1 = graphql(() => {
     },
   };
   //se tiene que pasar el rol con el que pueden hacer mutaciones ademas del token JWT
-  const [addcolor, { insertmutationData }] = useMutation(insertMutation, administratorHeader);
-  const [updatecolor, { updatemutationData }] = useMutation(updateMutation, administratorHeader);
-  const [deletecolor, { deletemutationData }] = useMutation(deleteMutation, administratorHeader);
-  const [deleteManycolors, { deleteManymutationData }] = useMutation(deleteManyMutation, administratorHeader);
+  const [addmaestro, { insertmutationData }] = useMutation(insertMutation, administratorHeader);
+  const [updatemaestro, { updatemutationData }] = useMutation(updateMutation, administratorHeader);
+  const [deletemaestro, { deletemutationData }] = useMutation(deleteMutation, administratorHeader);
+  const [deleteManymaestros, { deleteManymutationData }] = useMutation(deleteManyMutation, administratorHeader);
   useEffect(() => {
     setLoading(true);
     // se puede usar el cliente directamente o tambien el hook useLazyQuery
     client.query({ query: MY_QUERY_QUERY, ...administratorHeader }).then((data) => {
-      let _colors = data?.data?.catalogoEjemplo?.map((color, index) => {
-        return { ...color, numero: index + 1 };
+      let _maestros = data?.data?.catalogoEjemplo?.map((maestro, index) => {
+        return { ...maestro, numero: index + 1 };
       });
-      setcolors(_colors);
+      setmaestros(_maestros);
       setLoading(false);
     });
   }, []);
   const openNew = () => {
-    setcolor(emptycolor);
+    setmaestro(emptymaestro);
     setSubmitted(false);
-    setcolorDialog(true);
+    setmaestroDialog(true);
   };
   const hideDialog = () => {
     setSubmitted(false);
-    setcolorDialog(false);
-    setdeletecolorDialog(false);
-    setdeletecolorsDialog(false);
+    setmaestroDialog(false);
+    setdeletemaestroDialog(false);
+    setdeletemaestrosDialog(false);
   };
-  const savecolor = () => {
+  const savemaestro = () => {
     setSubmitted(true);
-    if (color.dato) {
-      let _colors = [...colors];
-      let _color = { ...color };
-      delete _color.numero;
+    if (maestro.dato) {
+      let _maestros = [...maestros];
+      let _maestro = { ...maestro };
+      delete _maestro.numero;
       //EDITAR/ACTUALIZAR
-      if (color.id) {
-        updatecolor({
-          variables: { id: _color.id, _set: _color },
+      if (maestro.id) {
+        updatemaestro({
+          variables: { id: _maestro.id, _set: _maestro },
         }).then((data) => {
           const index = findIndexById(data.data.update_catalogoEjemplo_by_pk.id);
-          _colors[index] = data.data.update_catalogoEjemplo_by_pk;
-          _colors = _colors.map((color, index) => {
-            return { ...color, numero: index + 1 };
+          _maestros[index] = data.data.update_catalogoEjemplo_by_pk;
+          _maestros = _maestros.map((maestro, index) => {
+            return { ...maestro, numero: index + 1 };
           });
-          setcolors(_colors);
+          setmaestros(_maestros);
           toast.current.show({
             severity: 'success',
             summary: 'Éxito',
-            detail: 'color Actualizado',
+            detail: 'maestro Actualizado',
             life: 3000,
           });
         });
         //Insertar NUEVO
       } else {
-        addcolor({
-          variables: { object: _color },
+        addmaestro({
+          variables: { object: _maestro },
         })
           .then((data) => {
-            _colors.push(data.data.insert_catalogoEjemplo_one);
-            _colors = _colors.map((color, index) => {
-              return { ...color, numero: index + 1 };
+            _maestros.push(data.data.insert_catalogoEjemplo_one);
+            _maestros = _maestros.map((maestro, index) => {
+              return { ...maestro, numero: index + 1 };
             });
-            setcolors(_colors);
+            setmaestros(_maestros);
             toast.current.show({
               severity: 'success',
               summary: 'Éxito',
-              detail: 'color Guardado',
+              detail: 'maestro Guardado',
               life: 3000,
             });
           })
@@ -161,8 +158,8 @@ export const Catalogo1 = graphql(() => {
             console.log(e);
           });
       }
-      setcolorDialog(false);
-      setcolor(emptycolor);
+      setmaestroDialog(false);
+      setmaestro(emptymaestro);
     } else {
       toast.current.show({
         severity: 'error',
@@ -172,36 +169,36 @@ export const Catalogo1 = graphql(() => {
       });
     }
   };
-  const editcolor = (color) => {
-    setcolor({ ...color });
-    setcolorDialog(true);
+  const editmaestro = (maestro) => {
+    setmaestro({ ...maestro });
+    setmaestroDialog(true);
   };
-  const confirmdeletecolor = (color) => {
-    setcolor(color);
-    setdeletecolorDialog(true);
+  const confirmdeletemaestro = (maestro) => {
+    setmaestro(maestro);
+    setdeletemaestroDialog(true);
   };
-  const deleteCOLOR = () => {
-    deletecolor({ variables: { id: color.id } }).then((data) => {
-      let _colors = colors
-        .filter((val) => val.id !== color.id)
-        .map((color, index) => {
-          return { ...color, numero: index + 1 };
+  const deletemaestroConfirmed = () => {
+    deletemaestro({ variables: { id: maestro.id } }).then((data) => {
+      let _maestros = maestros
+        .filter((val) => val.id !== maestro.id)
+        .map((maestro, index) => {
+          return { ...maestro, numero: index + 1 };
         });
-      setcolors(_colors);
-      setdeletecolorDialog(false);
-      setcolor(emptycolor);
+      setmaestros(_maestros);
+      setdeletemaestroDialog(false);
+      setmaestro(emptymaestro);
       toast.current.show({
         severity: 'success',
         summary: 'Éxito',
-        detail: 'color Eliminado',
+        detail: 'maestro Eliminado',
         life: 3000,
       });
     });
   };
   const findIndexById = (id) => {
     let index = -1;
-    for (let i = 0; i < colors.length; i++) {
-      if (colors[i].id === id) {
+    for (let i = 0; i < maestros.length; i++) {
+      if (maestros[i].id === id) {
         index = i;
         break;
       }
@@ -209,34 +206,34 @@ export const Catalogo1 = graphql(() => {
     return index;
   };
   const confirmDeleteSelected = () => {
-    setdeletecolorsDialog(true);
+    setdeletemaestrosDialog(true);
   };
-  const deleteSelectedcolor = () => {
-    let idsArray = selectedcolors.map(function (del) {
+  const deleteSelectedmaestro = () => {
+    let idsArray = selectedmaestros.map(function (del) {
       return del.id;
     });
-    deleteManycolors({ variables: { _in: idsArray } }).then((data) => {
-      let _colors = colors
-        .filter((val) => !selectedcolors.includes(val))
-        .map((color, index) => {
-          return { ...color, numero: index + 1 };
+    deleteManymaestros({ variables: { _in: idsArray } }).then((data) => {
+      let _maestros = maestros
+        .filter((val) => !selectedmaestros.includes(val))
+        .map((maestro, index) => {
+          return { ...maestro, numero: index + 1 };
         });
-      setcolors(_colors);
-      setdeletecolorsDialog(false);
-      setselectedcolors(null);
+      setmaestros(_maestros);
+      setdeletemaestrosDialog(false);
+      setselectedmaestros(null);
       toast.current.show({
         severity: 'success',
         summary: 'Éxito',
-        detail: 'color Eliminados',
+        detail: 'maestro Eliminados',
         life: 3000,
       });
     });
   };
   const onInputChange = (e, name) => {
     const val = (e.target && e.target.value) || '';
-    let _color = { ...color };
-    _color[`${name}`] = val;
-    setcolor(_color);
+    let _maestro = { ...maestro };
+    _maestro[`${name}`] = val;
+    setmaestro(_maestro);
   };
   const leftToolbarTemplate = () => {
     return (
@@ -247,7 +244,7 @@ export const Catalogo1 = graphql(() => {
           icon='pi pi-trash'
           className='p-button-danger'
           onClick={confirmDeleteSelected}
-          disabled={!selectedcolors || !selectedcolors.length}
+          disabled={!selectedmaestros || !selectedmaestros.length}
         />
       </React.Fragment>
     );
@@ -259,8 +256,8 @@ export const Catalogo1 = graphql(() => {
   const actionBodyTemplate = (rowData) => {
     return (
       <div className='actions'>
-        <Button icon='pi pi-pencil' className='p-button-rounded p-button-success p-mr-2' onClick={() => editcolor(rowData)} />
-        <Button icon='pi pi-trash' className='p-button-rounded p-button-warning' onClick={() => confirmdeletecolor(rowData)} />
+        <Button icon='pi pi-pencil' className='p-button-rounded p-button-success p-mr-2' onClick={() => editmaestro(rowData)} />
+        <Button icon='pi pi-trash' className='p-button-rounded p-button-danger' onClick={() => confirmdeletemaestro(rowData)} />
       </div>
     );
   };
@@ -268,7 +265,7 @@ export const Catalogo1 = graphql(() => {
     return (
       <div className='p-grid'>
         <div className='p-col-11'>
-          <h5 className='p-m-0'>Administración de colores</h5>
+          <h5 className='p-m-0'>Administración de maestroes</h5>
           <span className='p-input-icon-left'>
             <i className='pi pi-search' />
             <InputText type='search' onInput={(e) => setGlobalFilter(e.target.value)} placeholder='Buscar...' />
@@ -277,29 +274,29 @@ export const Catalogo1 = graphql(() => {
       </div>
     );
   };
-  const colorDialogFooter = (
+  const maestroDialogFooter = (
     <>
-      <Button label='Cancelar' icon='pi pi-times' className='p-button-text' onClick={hideDialog} />
-      <Button label='Guardar' icon='pi pi-check' onClick={savecolor} />
+      <Button label='Cancelar' icon='pi pi-times' className='p-button-text p-button-danger' onClick={hideDialog} />
+      <Button label='Guardar' icon='pi pi-check' onClick={savemaestro} />
     </>
   );
-  const deletecolorDialogFooter = (
+  const deletemaestroDialogFooter = (
     <>
-      <Button label='No' icon='pi pi-times' className='p-button-text' onClick={hideDialog} />
-      <Button label='Si' icon='pi pi-check' onClick={deleteCOLOR} />
+      <Button label='No' icon='pi pi-times' className='p-button-text p-button-info' onClick={hideDialog} />
+      <Button label='Si' icon='pi pi-check' className='p-button-danger' onClick={deletemaestroConfirmed} />
     </>
   );
-  const deletecolorsDialogFooter = (
+  const deletemaestrosDialogFooter = (
     <>
-      <Button label='No' icon='pi pi-times' className='p-button-text' onClick={hideDialog} />
-      <Button label='Si' icon='pi pi-check' onClick={deleteSelectedcolor} />
+      <Button label='No' icon='pi pi-times' className='p-button-text p-button-info' onClick={hideDialog} />
+      <Button label='Si' icon='pi pi-check' className='p-button-danger' onClick={deleteSelectedmaestro} />
     </>
   );
   return (
     <div>
       <div className='p-grid'>
         <div className='p-col-12'>
-          <Card title='Registrar color' className='card no-gutter widget-overview-box widget-overview-box-1'>
+          <Card title='Registrar maestro' className='card no-gutter widget-overview-box widget-overview-box-1'>
             {/* <MyQueryQuery></MyQueryQuery> */}
             <Toast ref={toast} />
             {!loading && (
@@ -308,9 +305,9 @@ export const Catalogo1 = graphql(() => {
 
                 <DataTable
                   ref={dt}
-                  value={colors}
-                  selection={selectedcolors}
-                  onSelectionChange={(e) => setselectedcolors(e.value)}
+                  value={maestros}
+                  selection={selectedmaestros}
+                  onSelectionChange={(e) => setselectedmaestros(e.value)}
                   dataKey='id'
                   paginator
                   rows={10}
@@ -319,49 +316,49 @@ export const Catalogo1 = graphql(() => {
                   paginatorTemplate='FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'
                   currentPageReportTemplate='Mostrando de {first} a {last} de un total de {totalRecords} registros'
                   globalFilter={globalFilter}
-                  emptyMessage='No color registrados.'
+                  emptyMessage='No maestro registrados.'
                   header={header()}
                   //exportFunction={exportFunction}
                 >
                   <Column selectionMode='multiple' headerStyle={{ width: '5%' }} />
                   <Column field='numero' header='Num' body={onIndexTemplate} headerStyle={{ width: '10%' }} />
                   <Column field='id' header='id' headerStyle={{ width: '10%' }} />
-                  <Column field='dato' header='color' headerStyle={{ width: '70%' }} />
+                  <Column field='dato' header='maestro' headerStyle={{ width: '70%' }} />
                   <Column body={actionBodyTemplate} headerStyle={{ width: '15%' }} />
                 </DataTable>
               </>
             )}
-            <Dialog visible={colorDialog} header='color' modal style={{ width: '50vw' }} className='p-fluid' footer={colorDialogFooter} onHide={hideDialog}>
+            <Dialog visible={maestroDialog} header='maestro' modal style={{ width: '50vw' }} className='p-fluid' footer={maestroDialogFooter} onHide={hideDialog}>
               <div className='p-field'>
-                <label htmlFor='color'>color</label>
+                <label htmlFor='maestro'>maestro</label>
                 <InputTextarea
-                  id='color'
-                  value={color.dato}
+                  id='maestro'
+                  value={maestro.dato}
                   onChange={(e) => onInputChange(e, 'dato')}
                   required={true}
                   rows={3}
                   cols={20}
                   className={classNames({
-                    'p-invalid': submitted && !color?.dato,
+                    'p-invalid': submitted && !maestro?.dato,
                   })}
                 />
-                {submitted && !color?.dato && <medium className='p-invalid'>Se requiere la Descripción.</medium>}
+                {submitted && !maestro?.dato && <medium className='p-invalid'>Se requiere la Descripción.</medium>}
               </div>
             </Dialog>
-            <Dialog visible={deletecolorDialog} style={{ width: '450px' }} header='Confirmación' modal footer={deletecolorDialogFooter} onHide={hideDialog}>
+            <Dialog visible={deletemaestroDialog} style={{ width: '450px' }} header='Confirmación' modal footer={deletemaestroDialogFooter} onHide={hideDialog}>
               <div className='p-d-flex p-ai-center p-jc-center'>
                 <i className='pi pi-exclamation-triangle p-mr-3' style={{ fontSize: '2rem' }} />
-                {color && (
+                {maestro && (
                   <span>
-                    ¿Estas seguro de borrar este color: <b>{color.numero + '.-' + color.dato}</b>?
+                    ¿Estas seguro de borrar este maestro: <b>{maestro.numero + '.-' + maestro.dato}</b>?
                   </span>
                 )}
               </div>
             </Dialog>
-            <Dialog visible={deletecolorsDialog} style={{ width: '450px' }} header='Confirmación' modal footer={deletecolorsDialogFooter} onHide={hideDialog}>
+            <Dialog visible={deletemaestrosDialog} style={{ width: '450px' }} header='Confirmación' modal footer={deletemaestrosDialogFooter} onHide={hideDialog}>
               <div className='p-d-flex p-ai-center p-jc-center'>
                 <i className='pi pi-exclamation-triangle p-mr-3' style={{ fontSize: '2rem' }} />
-                {color && <span>¿Estas seguro de borrar los colores seleccionados?</span>}
+                {maestro && <span>¿Estas seguro de borrar los maestroes seleccionados?</span>}
               </div>
             </Dialog>
           </Card>

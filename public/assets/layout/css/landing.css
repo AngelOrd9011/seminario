@@ -56,7 +56,8 @@ html {
       font-weight: 600;
       color: #00632e; }
     .landing-body .landing-btn:hover {
-      background: #b6dcff; }
+      background: #9bff7c; 
+      color: #fff !important;}
   .landing-body .landing-header {
     background-image: url("../../layout/images/pages/landing/bg-header.svg");
     min-height: 520px;

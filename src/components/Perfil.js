@@ -1,8 +1,6 @@
 import { UserInfo } from './UserInfo';
 import { useKeycloak } from '@react-keycloak/web';
 
-// import { query, client } from '../graphql-hasura-generated';
-// import { query as query2, client as client2 } from '../graphql-hasura-generated';
 import { graphql } from '@gqless/react';
 import { resolved } from 'gqless';
 import { Logger } from '@gqless/logger';
@@ -28,9 +26,9 @@ import { gql, useQuery, Query, useApolloClient, useMutation, Mutation, useLazyQu
 
 const Create_perfil_mutation = gql`
   mutation MyInsertPerfilMutation($picture_type: String = null, $picture: bytea = null, $username: String!) {
-    insert_mind_rh_usuario_one(
+    insert_user_profile_one(
       object: { username: $username, picture: $picture, picture_type: $picture_type }
-      on_conflict: { constraint: rh_usuario_username_key, update_columns: [picture, picture_type] }
+      on_conflict: { constraint: user_profile_username_key, update_columns: [picture, picture_type] }
     ) {
       id
     }
@@ -39,7 +37,7 @@ const Create_perfil_mutation = gql`
 
 const MY_QUERY_QUERY = gql`
   query MyQuery($username: String!) {
-    mind_rh_usuario(where: { username: { _eq: $username } }) {
+    user_profile(where: { username: { _eq: $username } }) {
       picture_type
       picturebase64
       username
@@ -61,9 +59,9 @@ export const Perfil = () => {
     },
   };
   const [insertPerfil, { insertmutationData }] = useMutation(Create_perfil_mutation, UserHeader);
-  const curp = keycloak.tokenParsed.preferred_username.toUpperCase();
+  const matricula = keycloak.tokenParsed.preferred_username.toUpperCase();
   const { loading, error, data } = useQuery(MY_QUERY_QUERY, {
-    variables: { username: curp },
+    variables: { username: matricula },
     ...UserHeader,
   });
 
@@ -71,8 +69,8 @@ export const Perfil = () => {
   useEffect(() => {
     if (loading === false && data) {
       setFotoPerfil(
-        data?.mind_rh_usuario?.[0].picture_type && data?.mind_rh_usuario?.[0].picturebase64
-          ? data?.mind_rh_usuario?.[0].picture_type + ',' + data?.mind_rh_usuario?.[0].picturebase64
+        data?.user_profile?.[0].picture_type && data?.user_profile?.[0].picturebase64
+          ? data?.user_profile?.[0].picture_type + ',' + data?.user_profile?.[0].picturebase64
           : null
       );
     }
@@ -92,7 +90,7 @@ export const Perfil = () => {
     //console.log(event.files);
     readFileDataAsHEX(event.files[0]).then((data) => {
       insertPerfil({
-        variables: { username: curp, picture: '\\x' + data.picture, picture_type: data.picture_type },
+        variables: { username: matricula, picture: '\\x' + data.picture, picture_type: data.picture_type },
       }).then((data) => {
         toast.current.show({
           severity: 'success',
@@ -120,7 +118,7 @@ export const Perfil = () => {
   };
   const eliminarimagen = () => {
     insertPerfil({
-      variables: { username: curp, picture: null, picture_type: null },
+      variables: { username: matricula, picture: null, picture_type: null },
     }).then((data) => {
       setFotoPerfil(null);
       toast.current.show({
@@ -133,9 +131,6 @@ export const Perfil = () => {
   };
   return (
     <>
-      <Suspense fallback={<span>loading...</span>}>
-        <UserInfo />
-      </Suspense>
       <div className='p-grid'>
         <div className='p-col-12'>
           <div className='card docs'>
@@ -158,11 +153,14 @@ export const Perfil = () => {
               <div className='p-mb-2'>
                 <img id='algo' width='auto' height='auto' src={fotoPerfil} />
               </div>
-              <div>{fotoPerfil && <Button icon='pi pi-trash' className='p-button-warning' onClick={eliminarimagen} label='Eliminar imagen' />}</div>
+              <div>{fotoPerfil && <Button icon='pi pi-trash' className='p-button-danger' onClick={eliminarimagen} label='Eliminar imagen' />}</div>
             </div>
           </div>
         </div>
       </div>
+      <Suspense fallback={<span>loading...</span>}>
+        <UserInfo />
+      </Suspense>
     </>
   );
 };

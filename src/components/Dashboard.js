@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
 import { Button } from 'primereact/button';
 import { Carousel } from "primereact/carousel";
-import { ProgressSpinner } from 'primereact/progressspinner';
 
 import { gql, useQuery } from '@apollo/client';
 import 'photoswipe/dist/photoswipe.css'
@@ -13,7 +12,7 @@ const anio = new Date().getFullYear();
 
 export const Dashboard = () => {
   const { keycloak, initialized } = useKeycloak();
-  const curp = keycloak.tokenParsed.preferred_username.toUpperCase();
+  const matricula = keycloak.tokenParsed.preferred_username.toUpperCase();
 
   const userHeader = {
     context: {

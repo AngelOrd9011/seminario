@@ -20,20 +20,6 @@ export const Home = () => {
 
   const history = useHistory();
 
-  //   switch (location.pathname) {
-  //     case "/login":
-  //       return <Route path="/login" component={Login} />;
-  //     case "/error":
-  //       return <Route path="/error" component={Error} />;
-  //     case "/notfound":
-  //       return <Route path="/notfound" component={NotFound} />;
-  //     case "/access":
-  //       return <Route path="/access" component={Access} />;
-  //     case "/home":
-  //       return <Route path="/access" component={Home} />;
-  //     default:
-  //       return <App />;
-  //   }
   const openMenu = () => {
     var wrapper = document.querySelector('.landing-wrapper');
     var body = document.querySelector('.landing-body');
@@ -56,6 +42,8 @@ export const Home = () => {
             <a href='#home'>
               <img src='./assets/images/logo-tesi.png' alt='logo' style={{width:"30%"}} />
             </a>
+
+           
             <a onClick={openMenu} id='landing-menu-button' tabIndex='0'>
               <i className='pi pi-bars'></i>
             </a>

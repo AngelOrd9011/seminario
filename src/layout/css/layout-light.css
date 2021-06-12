@@ -1139,16 +1139,16 @@ a {
     color: rgba(255, 255, 255, 0.8); }
     .layout-sidebar-darkgray .layout-sidebar .layout-menu li a:hover,
     .layout-sidebar-darkgray .layout-sidebar .layout-menu li .p-link:hover {
-      background: #4b545c; }
+      background: #9fbf4c; }
     .layout-sidebar-darkgray .layout-sidebar .layout-menu li a:focus,
     .layout-sidebar-darkgray .layout-sidebar .layout-menu li .p-link:focus {
       box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1); }
   .layout-sidebar-darkgray .layout-sidebar .layout-menu .layout-root-menuitem .layout-menuitem-root-text {
     color: rgba(255, 255, 255); }
   .layout-sidebar-darkgray .layout-sidebar .layout-menu .layout-root-menuitem.active-menuitem {
-    background: #1fb300; }
+    background: #009700; }
   .layout-sidebar-darkgray .layout-sidebar .layout-menu .layout-root-menuitem > ul > li.active-menuitem {
-    background: #1fb300; }
+    background: #009700; }
 @media screen and (min-width: 992px) {
   .layout-sidebar-darkgray.layout-slim .layout-sidebar .layout-menu .layout-root-menuitem > ul {
     background: #343a40;

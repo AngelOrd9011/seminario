@@ -9,6 +9,7 @@ import { Home } from './Home';
 import { useKeycloak } from '@react-keycloak/web';
 import { Suspense } from 'react';
 import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
+import { Loading } from "./components/utilities/Loading";
 
 const defaultOptions = {
   watchQuery: {
@@ -69,10 +70,9 @@ const AppWrapper = () => {
         defaultOptions: defaultOptions,
       });
       if (!token && !refreshedToken) setToken(keycloak.token);
-      //console.log(keycloak.token);
       return (
         <ApolloProvider client={apolloClient}>
-          <Suspense fallback={<span>Cargando...</span>}>
+          <Suspense fallback={<Loading />}>
             <App roles={keycloak.resourceAccess.cooLenguas?.roles}></App>
           </Suspense>
         </ApolloProvider>
@@ -80,7 +80,7 @@ const AppWrapper = () => {
     } else return <Home />;
   };
 
-  if (!initialized) return <h3>Cargando...</h3>;
+  if (!initialized) return <Loading />;
 
   switch (location.pathname) {
     case '/login':

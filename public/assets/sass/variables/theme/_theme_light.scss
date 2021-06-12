@@ -131,7 +131,7 @@ $secondaryButtonTextActiveColor:$secondaryButtonTextColor !default;
 $secondaryButtonActiveBorderColor:scale-color($secondaryButtonBg, $lightness: -20%) !default;
 $secondaryButtonFocusShadow:0 0 0 0.2rem scale-color($secondaryButtonBg, $lightness: 60%) !default;
 
-$infoButtonBg:#0288D1 !default;
+$infoButtonBg:#10b400 !default;
 $infoButtonTextColor:#ffffff !default;
 $infoButtonBorder:1px solid $infoButtonBg !default;
 $infoButtonHoverBg:scale-color($infoButtonBg, $lightness: -10%) !default;

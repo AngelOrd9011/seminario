@@ -4,18 +4,16 @@ import AppBreadcrumb from './AppBreadcrumb';
 import { useKeycloak } from '@react-keycloak/web';
 
 import { Button } from 'primereact/button';
-import { query, client } from './graphql-hasura-generated';
 import { graphql } from '@gqless/react';
 import { Logger } from '@gqless/logger';
 import { useHistory } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
 
-new Logger(client, true);
 const MY_QUERY_QUERY = gql`
   query MyQuery($username: String!) {
-    mind_rh_usuario(where: { username: { _eq: $username } }) {
-      picture_type
-      picturebase64
+    user_entity(where: { username: { _eq: $username } }) {
+      first_name
+      last_name
       username
       id
     }
@@ -31,9 +29,9 @@ const AppTopbar = graphql((props) => {
       },
     },
   };
-  const curp = keycloak.tokenParsed.preferred_username.toUpperCase();
+  const matricula = keycloak.tokenParsed.preferred_username.toUpperCase();
   const { loading, error, data } = useQuery(MY_QUERY_QUERY, {
-    variables: { username: curp },
+    variables: { username: matricula },
     ...UserHeader,
   });
 
@@ -44,16 +42,7 @@ const AppTopbar = graphql((props) => {
   const profileItemClassName = classNames('profile-item', {
     'active-menuitem fadeInDown': props.topbarUserMenuActive,
   });
-  const [fotoPerfil, setFotoPerfil] = useState(null);
-  useEffect(() => {
-    if (loading === false && data) {
-      setFotoPerfil(
-        data?.mind_rh_usuario?.[0]?.picture_type && data?.mind_rh_usuario?.[0]?.picturebase64
-          ? data?.mind_rh_usuario?.[0]?.picture_type + ',' + data?.mind_rh_usuario?.[0]?.picturebase64
-          : null
-      );
-    }
-  }, [loading, data]);
+  
   return (
     <div className='layout-topbar'>
       <div className='topbar-left'>
