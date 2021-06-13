@@ -16,6 +16,8 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    ports:
+      - 5000:5432
   hasura:
     image: hasura/graphql-engine:v2.0.0-alpha.10.cli-migrations-v3
     restart: unless-stopped

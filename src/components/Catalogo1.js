@@ -1,9 +1,5 @@
 import { useKeycloak } from '@react-keycloak/web';
-
-
 import { graphql } from '@gqless/react';
-import { Suspense } from 'react';
-
 import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { DataTable } from 'primereact/datatable';
@@ -14,7 +10,6 @@ import { InputText } from 'primereact/inputtext';
 import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { useHistory } from 'react-router-dom';
 import { Card } from 'primereact/card';
 
 import { gql, useQuery, Query, useApolloClient, useMutation, Mutation, useLazyQuery } from '@apollo/client';

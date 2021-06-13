@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { Route } from 'react-router-dom';
 import AppTopBar from './AppTopbar';
 import AppFooter from './AppFooter';
-//import AppConfig from './AppConfig';
 import AppMenu from './AppMenu';
 import AppSearch from './AppSearch';
 import PrimeReact from 'primereact/api';
@@ -11,16 +10,16 @@ import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 import './App.scss';
-import { useKeycloak } from '@react-keycloak/web';
 import { Suspense } from 'react';
+
 import { Dashboard } from './components/Dashboard';
 import { Home } from './Home';
 import { Perfil } from './components/Perfil';
-import { Catalogo1 } from './components/Catalogo1';
+import { Niveles } from "./components/admin/catalogos/Niveles";
+import { Turnos } from "./components/admin/catalogos/Turnos";
+import { Modalidades } from "./components/admin/catalogos/Modalidades";
 
 const App = ({ roles }) => {
-  const { keycloak, initialized } = useKeycloak();
-
   const [menuActive, setMenuActive] = useState(false);
   const [menuMode, setMenuMode] = useState('static');
   const [colorScheme, setColorScheme] = useState('light');
@@ -43,8 +42,6 @@ const App = ({ roles }) => {
   let rightMenuClick = false;
   let configClick = false;
 
-  let matricula = keycloak.tokenParsed.preferred_username.toUpperCase();
-
   const menuTop = [
     {
       label: 'Menu',
@@ -64,15 +61,17 @@ const App = ({ roles }) => {
       icon: 'pi pi-fw pi-align-left',
       items: [
         { label: 'Alumnos', icon: 'pi pi-fw pi-users', to: '/' },
+        { label: 'Expedientes', icon: 'pi pi-paperclip', to: '/' },
         { label: 'Profesores', icon: 'pi pi-fw pi-users', to: '/' },
-        { label: 'Cursos', icon: 'pi pi-paperclip', to: '/' },
+        { label: 'Cursos', icon: 'pi pi-pencil', to: '/' },
+        { label: 'Historial de calificaciones', icon: 'pi pi-book', to: '/' },
         {
           label: 'Catalogos',
           icon: 'pi pi-fw pi-align-left',
           items: [
-            { label: 'Catalogo 1', icon: 'pi pi-fw pi-align-left', to: '/catalogo1' },
-            { label: 'Catalogo 2', icon: 'pi pi-fw pi-align-left' },
-            { label: 'Cataloto 3', icon: 'pi pi-fw pi-align-left' },
+            { label: 'Niveles', icon: 'pi pi-fw pi-align-left', to: '/Niveles' },
+            { label: 'Turnos', icon: 'pi pi-fw pi-align-left', to:'/Turnos' },
+            { label: 'Modelidades', icon: 'pi pi-fw pi-align-left', to:'/Modalidades' },
           ],
         },
       ],
@@ -116,14 +115,26 @@ const App = ({ roles }) => {
     return menu;
   };
 
-  
-
   const routers = [
     {
-      path: '/catalogo1',
-      component: Catalogo1,
+      path: '/Niveles',
+      component: Niveles,
       meta: {
-        breadcrumb: [{ parent: 'Administrador', label: 'Catalogo1' }],
+        breadcrumb: [{ parent: 'Administrador', label: 'Niveles' }],
+      },
+    },
+    {
+      path: '/Turnos',
+      component: Turnos,
+      meta: {
+        breadcrumb: [{ parent: 'Administrador', label: 'Turnos' }],
+      },
+    },
+    {
+      path: '/Modalidades',
+      component: Modalidades,
+      meta: {
+        breadcrumb: [{ parent: 'Administrador', label: 'Modalidades' }],
       },
     },
     {
@@ -242,18 +253,6 @@ const App = ({ roles }) => {
     setMenuActive((prevMenuActive) => !prevMenuActive);
   };
 
-  const onMenuThemeChange = (name) => {
-    setMenuTheme('layout-sidebar-' + name);
-  };
-
-  const onMenuModeChange = (e) => {
-    setMenuMode(e.value);
-  };
-
-  const onColorSchemeChange = (e) => {
-    setColorScheme(e.value);
-  };
-
   const onTopbarUserMenuButtonClick = (event) => {
     userMenuClick = true;
     setTopbarUserMenuActive((prevTopbarUserMenuActive) => !prevTopbarUserMenuActive);
@@ -286,24 +285,12 @@ const App = ({ roles }) => {
     searchClick = false;
   };
 
-  const onRightMenuClick = () => {
-    rightMenuClick = true;
-  };
 
   const onRightMenuButtonClick = (event) => {
     rightMenuClick = true;
     setRightMenuActive((prevRightMenuActive) => !prevRightMenuActive);
     hideOverlayMenu();
     event.preventDefault();
-  };
-
-  const onConfigClick = () => {
-    configClick = true;
-  };
-
-  const onConfigButtonClick = () => {
-    setConfigActive((prevConfigActive) => !prevConfigActive);
-    configClick = true;
   };
 
   const hideOverlayMenu = () => {

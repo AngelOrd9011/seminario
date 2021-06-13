@@ -1,14 +1,10 @@
-import { Logger } from '@gqless/logger';
 import { graphql } from '@gqless/react';
 import React, { useState, useEffect, useRef } from "react";
 import { useKeycloak } from '@react-keycloak/web';
-import { resolved } from 'gqless';
 import { Card } from 'primereact/card';
-import { InputText } from 'primereact/inputtext';
-import AppCodeHighlight from '../AppCodeHighlight';
 import { gql, useQuery, Query, useApolloClient, useMutation, Mutation, useLazyQuery } from '@apollo/client';
 
-export const UserInfo = graphql(() => {
+export const UserInfo = graphql((roles) => {
   const [loading, setLoading] = useState(true);
   const client = useApolloClient();
   const { keycloak, initialized } = useKeycloak(); 
