@@ -18,6 +18,8 @@ import { Perfil } from './components/Perfil';
 import { Niveles } from "./components/admin/catalogos/Niveles";
 import { Turnos } from "./components/admin/catalogos/Turnos";
 import { Modalidades } from "./components/admin/catalogos/Modalidades";
+import { Alumnos } from './components/admin/Alumnos';
+import { Profesores } from './components/admin/Profesores';
 
 const App = ({ roles }) => {
   const [menuActive, setMenuActive] = useState(false);
@@ -60,9 +62,9 @@ const App = ({ roles }) => {
       label: 'Menu Administrador',
       icon: 'pi pi-fw pi-align-left',
       items: [
-        { label: 'Alumnos', icon: 'pi pi-fw pi-users', to: '/' },
+        { label: 'Alumnos', icon: 'pi pi-fw pi-users', to: '/Alumnos' },
         { label: 'Expedientes', icon: 'pi pi-paperclip', to: '/' },
-        { label: 'Profesores', icon: 'pi pi-fw pi-users', to: '/' },
+        { label: 'Profesores', icon: 'pi pi-fw pi-users', to: '/Profesores' },
         { label: 'Cursos', icon: 'pi pi-pencil', to: '/' },
         { label: 'Historial de calificaciones', icon: 'pi pi-book', to: '/' },
         {
@@ -116,6 +118,20 @@ const App = ({ roles }) => {
   };
 
   const routers = [
+    {
+      path: '/Profesores',
+      component: Profesores,
+      meta: {
+        breadcrumb: [{ parent: 'Administrador', label: 'Profesores' }],
+      },
+    },
+    {
+      path: '/Alumnos',
+      component: Alumnos,
+      meta: {
+        breadcrumb: [{ parent: 'Administrador', label: 'Alumnos' }],
+      },
+    },
     {
       path: '/Niveles',
       component: Niveles,

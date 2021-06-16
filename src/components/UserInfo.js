@@ -4,7 +4,7 @@ import { useKeycloak } from '@react-keycloak/web';
 import { Card } from 'primereact/card';
 import { gql, useQuery, Query, useApolloClient, useMutation, Mutation, useLazyQuery } from '@apollo/client';
 
-export const UserInfo = graphql((roles) => {
+export const UserInfo = graphql(() => {
   const [loading, setLoading] = useState(true);
   const client = useApolloClient();
   const { keycloak, initialized } = useKeycloak(); 
@@ -12,6 +12,8 @@ export const UserInfo = graphql((roles) => {
   const name = keycloak.tokenParsed.name;
   const email = keycloak.tokenParsed.email;
   const userID = keycloak.tokenParsed.sub;
+  const roles = keycloak.resourceAccess.cooLenguas?.roles;
+  console.log(roles) 
   const [user, setUser] = useState(
       {
         matricula: userName,
@@ -20,18 +22,34 @@ export const UserInfo = graphql((roles) => {
         id: userID,
       }
   ); 
+  const AditionaTinfo = () => {
+    const [info, setInfo] = useState(
+      {
+        title: '',
+      }
+    ); 
+    let rolesint = [];
+    rolesint = [...new Set([...rolesint, ...roles])];
+    rolesint.forEach((element, index) => {
+      if (element === 'Student') {
+        info.title = 'Alumno';
+      };
+      if (element === 'Teacher') {
+        info.title = 'Profesor'
+      }
+      if (element === 'Administrator') {
+        info.title = 'Administrador';
+      }
+    });
+    return(
+      <React.Fragment>
+        <Card title={info.title} className='card no-gutter widget-overview-box widget-overview-box-1'>
+
+        </Card>
+      </React.Fragment>
+    );
+  };
   return (
-    <Card title='Datos del usuario' className='card no-gutter widget-overview-box widget-overview-box-1'>
-      <div className='p-fluid p-formgrid p-grid'>
-        <h5>Nombre: {user.name}</h5>
-      </div>
-      <div className='p-fluid p-formgrid p-grid'>
-        <h5>Matricula: {user.matricula}</h5>
-      </div>
-      <div className='p-fluid p-formgrid p-grid'>
-        <h5>Email: {user.email}</h5>
-      </div>
-      {/* <AppCodeHighlight>{JSON.stringify(datosEmpleado, null, 2)}</AppCodeHighlight> */}
-    </Card>
+    <AditionaTinfo />
   );
 });

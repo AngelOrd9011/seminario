@@ -77,7 +77,7 @@ export const Perfil = graphql(() => {
       );
     }
   }, [loading, data]);
-  console.log(fotoPerfil)
+  //console.log(fotoPerfil)
   const base64ToHex = (str) => {
     //const btoa = window.btoa(str);
     const raw = atob(str);

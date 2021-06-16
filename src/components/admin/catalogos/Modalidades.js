@@ -316,12 +316,12 @@ export const Modalidades = graphql(() => {
                   <Column selectionMode='multiple' headerStyle={{ width: '10%' }} />
                   <Column field='numero' header='#' body={onIndexTemplate} headerStyle={{ width: '20%' }} />
                   <Column field='id' header='id' style={{ width: '0%', display: 'none'}} hidden='true' />
-                  <Column field='modality' header='Nivel' headerStyle={{ width: '30%' }} />
+                  <Column field='modality' header='Modalidad' headerStyle={{ width: '30%' }} />
                   <Column body={actionBodyTemplate} headerStyle={{ width: '20%' }} />
                 </DataTable>
               </>
             )}
-            <Dialog visible={entityDialog} header='Nivel' modal style={{ width: '50vw' }} className='p-fluid' footer={entityDialogFooter} onHide={hideDialog}>
+            <Dialog visible={entityDialog} header='Modalidad' modal style={{ width: '50vw' }} className='p-fluid' footer={entityDialogFooter} onHide={hideDialog}>
               <div className='p-field'>
                 <label htmlFor='entity'>Nombre:</label>
                 <InputText

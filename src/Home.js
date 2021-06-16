@@ -42,8 +42,6 @@ export const Home = () => {
             <a href='#home'>
               <img src='./assets/images/logo-tesi.png' alt='logo' style={{width:"30%"}} />
             </a>
-
-           
             <a onClick={openMenu} id='landing-menu-button' tabIndex='0'>
               <i className='pi pi-bars'></i>
             </a>
