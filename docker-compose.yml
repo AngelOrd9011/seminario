@@ -45,6 +45,7 @@ services:
       - hasura-net
     volumes:
       - ./keycloak:/tmp/keycloak
+      - ./login.css:/opt/jboss/keycloak/themes/keycloak/login/resources/css/login.css
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres

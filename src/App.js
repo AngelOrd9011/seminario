@@ -363,7 +363,7 @@ const App = ({ roles }) => {
   return (
     <div className={containerClassName} data-theme={colorScheme} onClick={onDocumentClick}>
       <div className='layout-content-wrapper'>
-        <Suspense fallback={<span>loading...</span>}>
+        <Suspense fallback={<span>Cargando...</span>}>
           <AppTopBar
             routers={routers}
             topbarNotificationMenuActive={topbarNotificationMenuActive}

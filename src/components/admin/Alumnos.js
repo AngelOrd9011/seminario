@@ -10,6 +10,7 @@ import { InputText } from 'primereact/inputtext';
 import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
 import { Card } from 'primereact/card';
+import "./responsiveDataTables.css";
 
 import { gql, useQuery, Query, useApolloClient, useMutation, Mutation, useLazyQuery } from '@apollo/client';
 
@@ -34,6 +35,8 @@ const MY_QUERY_QUERY = gql`
     view_students {
       id
       username
+      first_name
+      last_name
     }
   }
 `;
@@ -62,6 +65,8 @@ export const Alumnos = graphql(() => {
   const [deleteEntitiesDialog, setDeleteEntitiesDialog] = useState(false);
   const [emptyEntity, setEmptyEntity] = useState({
     username: '',
+    first_name:'',
+    last_name:''
   });
   const [entity, setEntity] = useState(emptyEntity);
   const [selectedEntities, setselectedEntities] = useState(null);
@@ -90,6 +95,7 @@ export const Alumnos = graphql(() => {
       let _entities = data?.data?.view_students?.map((entity, index) => {
         return { ...entity, numero: index + 1 };
       });
+      console.log(_entities);
       setEntities(_entities);
       setLoading(false);
     });
@@ -294,31 +300,35 @@ export const Alumnos = graphql(() => {
             {!loading && (
               <>
                 <Toolbar className='p-mb-4' left={leftToolbarTemplate}></Toolbar>
-
-                <DataTable
-                  ref={dt}
-                  value={entities}
-                  selection={selectedEntities}
-                  onSelectionChange={(e) => setselectedEntities(e.value)}
-                  dataKey='id'
-                  paginator
-                  rows={10}
-                  rowsPerPageOptions={[5, 10, 25]}
-                  className='datatable-responsive'
-                  paginatorTemplate='FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'
-                  currentPageReportTemplate='Mostrando de {first} a {last} de un total de {totalRecords} registros'
-                  globalFilter={globalFilter}
-                  emptyMessage='No hay alumnos registrados.'
-                  header={header()}
-                  //exportFunction={exportFunction}
-                >
-                  <Column selectionMode='multiple' headerStyle={{ width: '10%' }} />
-                  <Column field='numero' header='#' body={onIndexTemplate} headerStyle={{ width: '10%' }} />
-                  <Column field='id' header='id' style={{ width: '0%', display: 'none'}} hidden='true' />
-                  <Column field='username' header='Matricula' headerStyle={{ width: '20%' }} />
-                  <Column header='Nombre' headerStyle={{width:'30%'}}/>
-                  <Column body={actionBodyTemplate} headerStyle={{ width: '20%' }} />
-                </DataTable>
+                <div className="datatable-responsive">
+                  <div className="card">
+                    <DataTable
+                      ref={dt}
+                      value={entities}
+                      selection={selectedEntities}
+                      onSelectionChange={(e) => setselectedEntities(e.value)}
+                      dataKey='id'
+                      paginator
+                      rows={10}
+                      rowsPerPageOptions={[5, 10, 25]}
+                      className='datatable-responsive'
+                      paginatorTemplate='FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'
+                      currentPageReportTemplate='Mostrando de {first} a {last} de un total de {totalRecords} registros'
+                      globalFilter={globalFilter}
+                      emptyMessage='No hay alumnos registrados.'
+                      header={header()}
+                      //exportFunction={exportFunction}
+                    >
+                      <Column selectionMode='multiple' headerStyle={{ width: '10%' }} />
+                      <Column field='numero' header='#' body={onIndexTemplate} headerStyle={{ width: '10%' }} />
+                      <Column field='id' header='id' style={{ width: '0%', display: 'none'}} hidden='true' />
+                      <Column field='username' header='Matricula' headerStyle={{ width: '15%' }} />
+                      <Column field='first_name' header='Nombre(s)' headerStyle={{width:'20%'}}/>
+                      <Column field='last_name' header='Apellidos' headerStyle={{width:'20%'}}/>
+                      <Column body={actionBodyTemplate} headerStyle={{ width: '20%' }} />
+                    </DataTable>
+                  </div>
+                </div>
               </>
             )}
             <Dialog visible={entityDialog} header='Alumno' modal style={{ width: '50vw' }} className='p-fluid' footer={entityDialogFooter} onHide={hideDialog}>

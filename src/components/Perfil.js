@@ -77,7 +77,7 @@ export const Perfil = graphql(() => {
       );
     }
   }, [loading, data]);
-  //console.log(fotoPerfil)
+  console.log(fotoPerfil)
   const base64ToHex = (str) => {
     //const btoa = window.btoa(str);
     const raw = atob(str);
@@ -174,7 +174,7 @@ export const Perfil = graphql(() => {
           </div>
         </div>
         <div className='p-col-12 p-md-4'>
-        <Suspense fallback={<span>loading...</span>}>
+        <Suspense fallback={<span>Cargando...</span>}>
           <UserInfo />
         </Suspense>
         </div>
