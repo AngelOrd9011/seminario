@@ -10,9 +10,17 @@ import { InputText } from 'primereact/inputtext';
 import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
 import { Card } from 'primereact/card';
-import "./responsiveDataTables.css";
+import './responsiveDataTables.css';
 
-import { gql, useQuery, Query, useApolloClient, useMutation, Mutation, useLazyQuery } from '@apollo/client';
+import {
+  gql,
+  useQuery,
+  Query,
+  useApolloClient,
+  useMutation,
+  Mutation,
+  useLazyQuery,
+} from '@apollo/client';
 
 const updateMutation = gql`
   mutation MyUpdateMutation($id: Int!, $_set: view_students_set_input!) {
@@ -37,6 +45,9 @@ const MY_QUERY_QUERY = gql`
       username
       first_name
       last_name
+      phone_n
+      email
+      birth_date
     }
   }
 `;
@@ -65,8 +76,11 @@ export const Alumnos = graphql(() => {
   const [deleteEntitiesDialog, setDeleteEntitiesDialog] = useState(false);
   const [emptyEntity, setEmptyEntity] = useState({
     username: '',
-    first_name:'',
-    last_name:''
+    first_name: '',
+    last_name: '',
+    phone_n: '',
+    email: '',
+    birth_date: '',
   });
   const [entity, setEntity] = useState(emptyEntity);
   const [selectedEntities, setselectedEntities] = useState(null);
@@ -84,21 +98,34 @@ export const Alumnos = graphql(() => {
     },
   };
   //se tiene que pasar el rol con el que pueden hacer mutaciones ademas del token JWT
-  const [addEntity, { insertmutationData }] = useMutation(insertMutation, administratorHeader);
-  const [updateEntity, { updatemutationData }] = useMutation(updateMutation, administratorHeader);
-  const [deleteEntity, { deletemutationData }] = useMutation(deleteMutation, administratorHeader);
-  const [deleteManyEntities, { deleteManymutationData }] = useMutation(deleteManyMutation, administratorHeader);
+  const [addEntity, { insertmutationData }] = useMutation(
+    insertMutation,
+    administratorHeader
+  );
+  const [updateEntity, { updatemutationData }] = useMutation(
+    updateMutation,
+    administratorHeader
+  );
+  const [deleteEntity, { deletemutationData }] = useMutation(
+    deleteMutation,
+    administratorHeader
+  );
+  const [deleteManyEntities, { deleteManymutationData }] = useMutation(
+    deleteManyMutation,
+    administratorHeader
+  );
   useEffect(() => {
     setLoading(true);
     // se puede usar el cliente directamente o tambien el hook useLazyQuery
-    client.query({ query: MY_QUERY_QUERY, ...administratorHeader }).then((data) => {
-      let _entities = data?.data?.view_students?.map((entity, index) => {
-        return { ...entity, numero: index + 1 };
+    client
+      .query({ query: MY_QUERY_QUERY, ...administratorHeader })
+      .then((data) => {
+        let _entities = data?.data?.view_students?.map((entity, index) => {
+          return { ...entity, numero: index + 1 };
+        });
+        setEntities(_entities);
+        setLoading(false);
       });
-      console.log(_entities);
-      setEntities(_entities);
-      setLoading(false);
-    });
   }, []);
   const openNew = () => {
     setEntity(emptyEntity);
@@ -170,6 +197,7 @@ export const Alumnos = graphql(() => {
   };
   const editEntity = (entity) => {
     setEntity({ ...entity });
+    console.log(entity);
     setEntityDialog(true);
   };
   const confirmDeleteEntity = (entity) => {
@@ -208,7 +236,7 @@ export const Alumnos = graphql(() => {
     setDeleteEntitiesDialog(true);
   };
   const deleteSelectedEntity = () => {
-    let idsArray = selectedEntities.map(function (del) {
+    let idsArray = selectedEntities.map(function(del) {
       return del.id;
     });
     deleteManyEntities({ variables: { _in: idsArray } }).then((data) => {
@@ -237,11 +265,16 @@ export const Alumnos = graphql(() => {
   const leftToolbarTemplate = () => {
     return (
       <React.Fragment>
-        <Button label='Agregar' icon='pi pi-plus' className='p-button-success p-mr-2' onClick={openNew} />
         <Button
-          label='Eliminar'
-          icon='pi pi-trash'
-          className='p-button-danger'
+          label="Agregar"
+          icon="pi pi-plus"
+          className="p-button-success p-mr-2"
+          onClick={openNew}
+        />
+        <Button
+          label="Eliminar"
+          icon="pi pi-trash"
+          className="p-button-danger"
           onClick={confirmDeleteSelected}
           disabled={!selectedEntities || !selectedEntities.length}
         />
@@ -254,19 +287,31 @@ export const Alumnos = graphql(() => {
   };
   const actionBodyTemplate = (rowData) => {
     return (
-      <div className='actions'>
-        <Button icon='pi pi-pencil' className='p-button-rounded p-button-success p-mr-2' onClick={() => editEntity(rowData)} />
-        <Button icon='pi pi-trash' className='p-button-rounded p-button-danger' onClick={() => confirmDeleteEntity(rowData)} />
+      <div className="actions">
+        <Button
+          icon="pi pi-pencil"
+          className="p-button-rounded p-button-success p-mr-2"
+          onClick={() => editEntity(rowData)}
+        />
+        <Button
+          icon="pi pi-trash"
+          className="p-button-rounded p-button-danger"
+          onClick={() => confirmDeleteEntity(rowData)}
+        />
       </div>
     );
   };
   const header = () => {
     return (
-      <div className='p-grid'>
-        <div className='p-col-11'>
-          <span className='p-input-icon-left'>
-            <i className='pi pi-search' />
-            <InputText type='search' onInput={(e) => setGlobalFilter(e.target.value)} placeholder='Buscar...' />
+      <div className="p-grid">
+        <div className="p-col-11">
+          <span className="p-input-icon-left">
+            <i className="pi pi-search" />
+            <InputText
+              type="search"
+              onInput={(e) => setGlobalFilter(e.target.value)}
+              placeholder="Buscar..."
+            />
           </span>
         </div>
       </div>
@@ -274,32 +319,63 @@ export const Alumnos = graphql(() => {
   };
   const entityDialogFooter = (
     <>
-      <Button label='Cancelar' icon='pi pi-times' className='p-button-text p-button-danger' onClick={hideDialog} />
-      <Button label='Guardar' icon='pi pi-check' onClick={saveEntity} />
+      <Button
+        label="Cancelar"
+        icon="pi pi-times"
+        className="p-button-text p-button-danger"
+        onClick={hideDialog}
+      />
+      <Button label="Guardar" icon="pi pi-check" onClick={saveEntity} />
     </>
   );
   const deleteEntityDialogFooter = (
     <>
-      <Button label='No' icon='pi pi-times' className='p-button-text p-button-info' onClick={hideDialog} />
-      <Button label='Si' icon='pi pi-check' className='p-button-danger' onClick={deleteEntityConfirmed} />
+      <Button
+        label="No"
+        icon="pi pi-times"
+        className="p-button-text p-button-info"
+        onClick={hideDialog}
+      />
+      <Button
+        label="Si"
+        icon="pi pi-check"
+        className="p-button-danger"
+        onClick={deleteEntityConfirmed}
+      />
     </>
   );
   const deleteEntitiesDialogFooter = (
     <>
-      <Button label='No' icon='pi pi-times' className='p-button-text p-button-info' onClick={hideDialog} />
-      <Button label='Si' icon='pi pi-check' className='p-button-danger' onClick={deleteSelectedEntity} />
+      <Button
+        label="No"
+        icon="pi pi-times"
+        className="p-button-text p-button-info"
+        onClick={hideDialog}
+      />
+      <Button
+        label="Si"
+        icon="pi pi-check"
+        className="p-button-danger"
+        onClick={deleteSelectedEntity}
+      />
     </>
   );
   return (
     <div>
-      <div className='p-grid'>
-        <div className='p-col-12'>
-          <Card title='Administración de Alumnos' className='card no-gutter widget-overview-box widget-overview-box-1'>
+      <div className="p-grid">
+        <div className="p-col-12">
+          <Card
+            title="Administración de Alumnos"
+            className="card no-gutter widget-overview-box widget-overview-box-1"
+          >
             {/* <MyQueryQuery></MyQueryQuery> */}
             <Toast ref={toast} />
             {!loading && (
               <>
-                <Toolbar className='p-mb-4' left={leftToolbarTemplate}></Toolbar>
+                <Toolbar
+                  className="p-mb-4"
+                  left={leftToolbarTemplate}
+                ></Toolbar>
                 <div className="datatable-responsive">
                   <div className="card">
                     <DataTable
@@ -307,61 +383,200 @@ export const Alumnos = graphql(() => {
                       value={entities}
                       selection={selectedEntities}
                       onSelectionChange={(e) => setselectedEntities(e.value)}
-                      dataKey='id'
+                      dataKey="id"
                       paginator
                       rows={10}
                       rowsPerPageOptions={[5, 10, 25]}
-                      className='datatable-responsive'
-                      paginatorTemplate='FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'
-                      currentPageReportTemplate='Mostrando de {first} a {last} de un total de {totalRecords} registros'
+                      className="datatable-responsive"
+                      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                      currentPageReportTemplate="Mostrando de {first} a {last} de un total de {totalRecords} registros"
                       globalFilter={globalFilter}
-                      emptyMessage='No hay alumnos registrados.'
+                      emptyMessage="No hay alumnos registrados."
                       header={header()}
                       //exportFunction={exportFunction}
                     >
-                      <Column selectionMode='multiple' headerStyle={{ width: '10%' }} />
-                      <Column field='numero' header='#' body={onIndexTemplate} headerStyle={{ width: '10%' }} />
-                      <Column field='id' header='id' style={{ width: '0%', display: 'none'}} hidden='true' />
-                      <Column field='username' header='Matricula' headerStyle={{ width: '15%' }} />
-                      <Column field='first_name' header='Nombre(s)' headerStyle={{width:'20%'}}/>
-                      <Column field='last_name' header='Apellidos' headerStyle={{width:'20%'}}/>
-                      <Column body={actionBodyTemplate} headerStyle={{ width: '20%' }} />
+                      <Column
+                        selectionMode="multiple"
+                        headerStyle={{ width: '10%' }}
+                      />
+                      <Column
+                        field="numero"
+                        header="#"
+                        body={onIndexTemplate}
+                        headerStyle={{ width: '10%' }}
+                      />
+                      <Column
+                        field="id"
+                        header="id"
+                        style={{ width: '0%', display: 'none' }}
+                        hidden="true"
+                      />
+                      <Column
+                        field="username"
+                        header="Matricula"
+                        headerStyle={{ width: '20%' }}
+                      />
+                      <Column
+                        field="first_name"
+                        header="Nombre(s)"
+                        headerStyle={{ width: '20%' }}
+                      />
+                      <Column
+                        field="last_name"
+                        header="Apellidos"
+                        headerStyle={{ width: '20%' }}
+                      />
+                      <Column
+                        body={actionBodyTemplate}
+                        headerStyle={{ width: '20%' }}
+                      />
                     </DataTable>
                   </div>
                 </div>
               </>
             )}
-            <Dialog visible={entityDialog} header='Alumno' modal style={{ width: '50vw' }} className='p-fluid' footer={entityDialogFooter} onHide={hideDialog}>
-              <div className='p-field'>
-                <label htmlFor='entity'>Matricula:</label>
-                <InputText
-                  id='entity'
-                  value={entity.username}
-                  onChange={(e) => onInputChange(e, 'username')}
-                  required={true}
-                  rows={3}
-                  cols={20}
-                  className={classNames({
-                    'p-invalid': submitted && !entity?.username,
-                  })}
-                />
-                {submitted && !entity?.username && <medium className='p-invalid'>Se requiere la matricula del alumno.</medium>}
+            <Dialog
+              visible={entityDialog}
+              header="Alumno"
+              modal
+              style={{ width: '50vw' }}
+              className="p-fluid"
+              footer={entityDialogFooter}
+              onHide={hideDialog}
+            >
+              <div className="p-grid">
+                <div className="p-field p-col-12 p-md-6 p-lg-4">
+                  <label htmlFor="entity">Matricula:</label>
+                  <InputText
+                    id="entity"
+                    value={entity.username}
+                    onChange={(e) => onInputChange(e, 'username')}
+                    required={true}
+                    rows={3}
+                    cols={20}
+                    className={classNames({
+                      'p-invalid': submitted && !entity?.username,
+                    })}
+                  />
+                  {submitted && !entity?.username && (
+                    <medium className="p-invalid">
+                      Se requiere la matricula del alumno.
+                    </medium>
+                  )}
+                </div>
+                <div className="p-field p-col-12 p-md-6 p-lg-4">
+                  <label htmlFor="entity">Nombre(s):</label>
+                  <InputText
+                    id="entity"
+                    value={entity.first_name}
+                    onChange={(e) => onInputChange(e, 'first_name')}
+                    required={true}
+                    rows={3}
+                    cols={20}
+                    className={classNames({
+                      'p-invalid': submitted && !entity?.first_name,
+                    })}
+                  />
+                  {submitted && !entity?.first_name && (
+                    <medium className="p-invalid">
+                      Se requiere el nombre del alumno.
+                    </medium>
+                  )}
+                </div>
+                <div className="p-field p-col-12 p-md-6 p-lg-4">
+                  <label htmlFor="entity">Apellidos:</label>
+                  <InputText
+                    id="entity"
+                    value={entity.last_name}
+                    onChange={(e) => onInputChange(e, 'last_name')}
+                    required={true}
+                    rows={3}
+                    cols={20}
+                    className={classNames({
+                      'p-invalid': submitted && !entity?.last_name,
+                    })}
+                  />
+                  {submitted && !entity?.last_name && (
+                    <medium className="p-invalid">
+                      Se requieren los apellidos del alumno.
+                    </medium>
+                  )}
+                </div>
+                <div className="p-field p-col-12 p-md-6 p-lg-4">
+                  <label htmlFor="entity">Numero telefonico:</label>
+                  <InputText
+                    id="entity"
+                    value={entity.phone_n}
+                    onChange={(e) => onInputChange(e, 'phone_n')}
+                    required={true}
+                    rows={3}
+                    cols={20}
+                  />
+                </div>
+                <div className="p-field p-col-12 p-md-6 p-lg-4">
+                  <label htmlFor="entity">Fecha de nacimiento:</label>
+                  <InputText
+                    id="entity"
+                    value={entity.birth_date}
+                    onChange={(e) => onInputChange(e, 'birth_date')}
+                    required={true}
+                    rows={3}
+                    cols={20}
+                    type="date"
+                  />
+                </div>
+                <div className="p-field p-col-12 p-md-6 p-lg-4">
+                  <label htmlFor="entity">Correo electrónico:</label>
+                  <InputText
+                    id="entity"
+                    value={entity.email}
+                    onChange={(e) => onInputChange(e, 'email')}
+                    required={true}
+                    rows={3}
+                    cols={20}
+                  />
+                </div>
               </div>
             </Dialog>
-            <Dialog visible={deleteEntityDialog} style={{ width: '450px' }} header='Confirmación' modal footer={deleteEntityDialogFooter} onHide={hideDialog}>
-              <div className='p-d-flex p-ai-center p-jc-center'>
-                <i className='pi pi-exclamation-triangle p-mr-3' style={{ fontSize: '2rem' }} />
+            <Dialog
+              visible={deleteEntityDialog}
+              style={{ width: '450px' }}
+              header="Confirmación"
+              modal
+              footer={deleteEntityDialogFooter}
+              onHide={hideDialog}
+            >
+              <div className="p-d-flex p-ai-center p-jc-center">
+                <i
+                  className="pi pi-exclamation-triangle p-mr-3"
+                  style={{ fontSize: '2rem' }}
+                />
                 {entity && (
                   <span>
-                    ¿Estas seguro de borrar este alumno: <b>{entity.numero + '.-' + entity.username}</b>?
+                    ¿Estas seguro de borrar al alumno con matricula:{' '}
+                    <b>{entity.numero + '.-' + entity.username}</b>?
                   </span>
                 )}
               </div>
             </Dialog>
-            <Dialog visible={deleteEntitiesDialog} style={{ width: '450px' }} header='Confirmación' modal footer={deleteEntitiesDialogFooter} onHide={hideDialog}>
-              <div className='p-d-flex p-ai-center p-jc-center'>
-                <i className='pi pi-exclamation-triangle p-mr-3' style={{ fontSize: '2rem' }} />
-                {entity && <span>¿Estas seguro de borrar los alumnos seleccionados?</span>}
+            <Dialog
+              visible={deleteEntitiesDialog}
+              style={{ width: '450px' }}
+              header="Confirmación"
+              modal
+              footer={deleteEntitiesDialogFooter}
+              onHide={hideDialog}
+            >
+              <div className="p-d-flex p-ai-center p-jc-center">
+                <i
+                  className="pi pi-exclamation-triangle p-mr-3"
+                  style={{ fontSize: '2rem' }}
+                />
+                {entity && (
+                  <span>
+                    ¿Estas seguro de borrar los alumnos seleccionados?
+                  </span>
+                )}
               </div>
             </Dialog>
           </Card>

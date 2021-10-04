@@ -15,11 +15,12 @@ import { Suspense } from 'react';
 import { Dashboard } from './components/Dashboard';
 import { Home } from './Home';
 import { Perfil } from './components/Perfil';
-import { Niveles } from "./components/admin/catalogos/Niveles";
-import { Turnos } from "./components/admin/catalogos/Turnos";
-import { Modalidades } from "./components/admin/catalogos/Modalidades";
+import { Niveles } from './components/admin/catalogos/Niveles';
+import { Turnos } from './components/admin/catalogos/Turnos';
+import { Modalidades } from './components/admin/catalogos/Modalidades';
 import { Alumnos } from './components/admin/Alumnos';
 import { Profesores } from './components/admin/Profesores';
+import { Expedientes } from './components/admin/Expedientes';
 
 const App = ({ roles }) => {
   const [menuActive, setMenuActive] = useState(false);
@@ -27,11 +28,16 @@ const App = ({ roles }) => {
   const [colorScheme, setColorScheme] = useState('light');
   const [menuTheme, setMenuTheme] = useState('layout-sidebar-darkgray');
   const [overlayMenuActive, setOverlayMenuActive] = useState(false);
-  const [staticMenuDesktopInactive, setStaticMenuDesktopInactive] = useState(false);
+  const [staticMenuDesktopInactive, setStaticMenuDesktopInactive] = useState(
+    false
+  );
   const [staticMenuMobileActive, setStaticMenuMobileActive] = useState(false);
   const [searchActive, setSearchActive] = useState(false);
   const [topbarUserMenuActive, setTopbarUserMenuActive] = useState(false);
-  const [topbarNotificationMenuActive, setTopbarNotificationMenuActive] = useState(false);
+  const [
+    topbarNotificationMenuActive,
+    setTopbarNotificationMenuActive,
+  ] = useState(false);
   const [rightMenuActive, setRightMenuActive] = useState(false);
   const [configActive, setConfigActive] = useState(false);
   const [inputStyle, setInputStyle] = useState('outlined');
@@ -50,12 +56,11 @@ const App = ({ roles }) => {
       icon: 'pi pi-fw pi-home',
       items: [
         { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/' },
-        { label: 'Perfil de Usuario', icon: 'pi pi-fw pi-user', to: '/perfil'},
+        { label: 'Perfil de Usuario', icon: 'pi pi-fw pi-user', to: '/perfil' },
       ],
     },
     { separator: true },
   ];
-
 
   const menuAdmin = [
     {
@@ -63,7 +68,7 @@ const App = ({ roles }) => {
       icon: 'pi pi-fw pi-align-left',
       items: [
         { label: 'Alumnos', icon: 'pi pi-fw pi-users', to: '/Alumnos' },
-        { label: 'Expedientes', icon: 'pi pi-paperclip', to: '/' },
+        { label: 'Expedientes', icon: 'pi pi-paperclip', to: '/Expedientes' },
         { label: 'Profesores', icon: 'pi pi-fw pi-users', to: '/Profesores' },
         { label: 'Cursos', icon: 'pi pi-pencil', to: '/' },
         { label: 'Historial de calificaciones', icon: 'pi pi-book', to: '/' },
@@ -71,9 +76,17 @@ const App = ({ roles }) => {
           label: 'Catalogos',
           icon: 'pi pi-fw pi-align-left',
           items: [
-            { label: 'Niveles', icon: 'pi pi-fw pi-align-left', to: '/Niveles' },
-            { label: 'Turnos', icon: 'pi pi-fw pi-align-left', to:'/Turnos' },
-            { label: 'Modelidades', icon: 'pi pi-fw pi-align-left', to:'/Modalidades' },
+            {
+              label: 'Niveles',
+              icon: 'pi pi-fw pi-align-left',
+              to: '/Niveles',
+            },
+            { label: 'Turnos', icon: 'pi pi-fw pi-align-left', to: '/Turnos' },
+            {
+              label: 'Modelidades',
+              icon: 'pi pi-fw pi-align-left',
+              to: '/Modalidades',
+            },
           ],
         },
       ],
@@ -86,7 +99,11 @@ const App = ({ roles }) => {
       label: 'Menu Profesor',
       icon: 'pi pi-fw pi-home',
       items: [
-        { label: 'Subir calificaciones', icon: 'pi pi-sort-numeric-up-alt', to: '/' },
+        {
+          label: 'Subir calificaciones',
+          icon: 'pi pi-sort-numeric-up-alt',
+          to: '/',
+        },
       ],
     },
     { separator: true },
@@ -97,8 +114,8 @@ const App = ({ roles }) => {
       icon: 'pi pi-fw pi-home',
       items: [
         { label: 'Mis calificaciones', icon: 'pi pi-chart-line', to: '/' },
-        { label: 'Expediente', icon: 'pi pi-fw pi-file-o', to: '/'},
-        { label: 'Reconocimientos', icon: 'pi pi-fw pi-star-o', to:'/'}
+        { label: 'Expediente', icon: 'pi pi-fw pi-file-o', to: '/' },
+        { label: 'Reconocimientos', icon: 'pi pi-fw pi-star-o', to: '/' },
       ],
     },
     { separator: true },
@@ -161,12 +178,19 @@ const App = ({ roles }) => {
       },
     },
     {
+      path: '/expedientes',
+      component: Expedientes,
+      meta: {
+        breadcrumb: [{ label: 'Expedientes' }],
+      },
+    },
+    {
       path: '/',
       component: Dashboard,
       exact: true,
       meta: { breadcrumb: [{ parent: 'Inicio', label: 'INICIO' }] },
     },
-    
+
     {
       path: '/home',
       component: Home,
@@ -247,9 +271,13 @@ const App = ({ roles }) => {
     }
 
     if (isDesktop()) {
-      setStaticMenuDesktopInactive((prevStaticMenuDesktopInactive) => !prevStaticMenuDesktopInactive);
+      setStaticMenuDesktopInactive(
+        (prevStaticMenuDesktopInactive) => !prevStaticMenuDesktopInactive
+      );
     } else {
-      setStaticMenuMobileActive((prevStaticMenuMobileActive) => !prevStaticMenuMobileActive);
+      setStaticMenuMobileActive(
+        (prevStaticMenuMobileActive) => !prevStaticMenuMobileActive
+      );
     }
 
     event.preventDefault();
@@ -271,7 +299,9 @@ const App = ({ roles }) => {
 
   const onTopbarUserMenuButtonClick = (event) => {
     userMenuClick = true;
-    setTopbarUserMenuActive((prevTopbarUserMenuActive) => !prevTopbarUserMenuActive);
+    setTopbarUserMenuActive(
+      (prevTopbarUserMenuActive) => !prevTopbarUserMenuActive
+    );
 
     hideOverlayMenu();
 
@@ -280,7 +310,9 @@ const App = ({ roles }) => {
 
   const onTopbarNotificationMenuButtonClick = (event) => {
     notificationMenuClick = true;
-    setTopbarNotificationMenuActive((prevTopbarNotificationMenuActive) => !prevTopbarNotificationMenuActive);
+    setTopbarNotificationMenuActive(
+      (prevTopbarNotificationMenuActive) => !prevTopbarNotificationMenuActive
+    );
 
     hideOverlayMenu();
 
@@ -300,7 +332,6 @@ const App = ({ roles }) => {
     setSearchActive(false);
     searchClick = false;
   };
-
 
   const onRightMenuButtonClick = (event) => {
     rightMenuClick = true;
@@ -327,7 +358,13 @@ const App = ({ roles }) => {
     if (document.body.classList) {
       document.body.classList.remove('blocked-scroll');
     } else {
-      document.body.className = document.body.className.replace(new RegExp('(^|\\b)' + 'blocked-scroll'.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+      document.body.className = document.body.className.replace(
+        new RegExp(
+          '(^|\\b)' + 'blocked-scroll'.split(' ').join('|') + '(\\b|$)',
+          'gi'
+        ),
+        ' '
+      );
     }
   };
 
@@ -353,7 +390,8 @@ const App = ({ roles }) => {
       'layout-sidebar-dark': colorScheme === 'dark',
       'layout-overlay-active': overlayMenuActive,
       'layout-mobile-active': staticMenuMobileActive,
-      'layout-static-inactive': staticMenuDesktopInactive && menuMode === 'static',
+      'layout-static-inactive':
+        staticMenuDesktopInactive && menuMode === 'static',
       'p-input-filled': inputStyle === 'filled',
       'p-ripple-disabled': !ripple,
     },
@@ -361,8 +399,12 @@ const App = ({ roles }) => {
   );
 
   return (
-    <div className={containerClassName} data-theme={colorScheme} onClick={onDocumentClick}>
-      <div className='layout-content-wrapper'>
+    <div
+      className={containerClassName}
+      data-theme={colorScheme}
+      onClick={onDocumentClick}
+    >
+      <div className="layout-content-wrapper">
         <Suspense fallback={<span>Cargando...</span>}>
           <AppTopBar
             routers={routers}
@@ -377,13 +419,26 @@ const App = ({ roles }) => {
           ></AppTopBar>
         </Suspense>
 
-        <div className='layout-content'>
+        <div className="layout-content">
           {routers.map((router, index) => {
             if (router.exact) {
-              return <Route key={`router${index}`} path={router.path} exact component={router.component} />;
+              return (
+                <Route
+                  key={`router${index}`}
+                  path={router.path}
+                  exact
+                  component={router.component}
+                />
+              );
             }
 
-            return <Route key={`router${index}`} path={router.path} component={router.component} />;
+            return (
+              <Route
+                key={`router${index}`}
+                path={router.path}
+                component={router.component}
+              />
+            );
           })}
         </div>
 
@@ -400,9 +455,13 @@ const App = ({ roles }) => {
         onRootMenuitemClick={onRootMenuitemClick}
       ></AppMenu>
 
-      <AppSearch searchActive={searchActive} onSearchClick={onSearchClick} onSearchHide={onSearchHide} />
+      <AppSearch
+        searchActive={searchActive}
+        onSearchClick={onSearchClick}
+        onSearchHide={onSearchHide}
+      />
 
-      <div className='layout-mask modal-in'></div>
+      <div className="layout-mask modal-in"></div>
     </div>
   );
 };

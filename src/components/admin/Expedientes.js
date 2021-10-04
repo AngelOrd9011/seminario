@@ -9,7 +9,10 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
+import { Dropdown } from 'primereact/dropdown';
 import { Card } from 'primereact/card';
+import { PDFtest } from './catalogos/PDFExpedientes';
+import './responsiveDataTables.css';
 
 import {
   gql,
@@ -22,55 +25,64 @@ import {
 } from '@apollo/client';
 
 const updateMutation = gql`
-  mutation MyUpdateMutation($id: Int!, $_set: levels_set_input!) {
-    update_levels_by_pk(pk_columns: { id: $id }, _set: $_set) {
+  mutation MyUpdateMutation($id: Int!, $_set: view_students_set_input!) {
+    update_view_students_by_pk(pk_columns: { id: $id }, _set: $_set) {
       id
-      level
+      username
     }
   }
 `;
 const insertMutation = gql`
-  mutation MyInsertMutation($object: levels_insert_input!) {
-    insert_levels_one(object: $object) {
+  mutation MyInsertMutation($object: view_students_insert_input!) {
+    insert_view_students_one(object: $object) {
       id
-      level
+      username
     }
   }
 `;
 const MY_QUERY_QUERY = gql`
   query {
-    levels {
+    view_students {
       id
-      level
+      username
+      first_name
+      last_name
+      phone_n
+      email
+      birth_date
     }
   }
 `;
 
 const deleteMutation = gql`
   mutation MyDeleteMutation($id: Int!) {
-    delete_levels_by_pk(id: $id) {
+    delete_view_students_by_pk(id: $id) {
       id
     }
   }
 `;
 const deleteManyMutation = gql`
   mutation MyDeleteManyMutation($_in: [Int!]!) {
-    delete_levels(where: { id: { _in: $_in } }) {
+    delete_view_students(where: { id: { _in: $_in } }) {
       affected_rows
     }
   }
 `;
-export const Niveles = graphql(() => {
+export const Expedientes = graphql(() => {
   const [loading, setLoading] = useState(true);
   const client = useApolloClient();
   const { keycloak, initialized } = useKeycloak();
-  const matricula = keycloak.tokenParsed.preferred_username.toUpperCase();
   const [entities, setEntities] = useState(null);
   const [entityDialog, setEntityDialog] = useState(false);
   const [deleteEntityDialog, setDeleteEntityDialog] = useState(false);
   const [deleteEntitiesDialog, setDeleteEntitiesDialog] = useState(false);
   const [emptyEntity, setEmptyEntity] = useState({
-    level: '',
+    username: '',
+    first_name: '',
+    last_name: '',
+    phone_n: '',
+    email: '',
+    birth_date: '',
   });
   const [entity, setEntity] = useState(emptyEntity);
   const [selectedEntities, setselectedEntities] = useState(null);
@@ -78,6 +90,7 @@ export const Niveles = graphql(() => {
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
   const otroRef = useRef(null);
+  const [pdfDialog, setPdfDialog] = useState(false);
   const dt = useRef(null);
   const administratorHeader = {
     context: {
@@ -110,7 +123,7 @@ export const Niveles = graphql(() => {
     client
       .query({ query: MY_QUERY_QUERY, ...administratorHeader })
       .then((data) => {
-        let _entities = data?.data?.levels?.map((entity, index) => {
+        let _entities = data?.data?.view_students?.map((entity, index) => {
           return { ...entity, numero: index + 1 };
         });
         setEntities(_entities);
@@ -129,64 +142,11 @@ export const Niveles = graphql(() => {
     setDeleteEntitiesDialog(false);
   };
   const saveEntity = () => {
-    setSubmitted(true);
-    if (entity.level) {
-      let _entities = [...entities];
-      let _entity = { ...entity };
-      delete _entity.numero;
-      //EDITAR/ACTUALIZAR
-      if (entity.id) {
-        updateEntity({
-          variables: { id: _entity.id, _set: _entity },
-        }).then((data) => {
-          const index = findIndexById(data.data.update_levels_by_pk.id);
-          _entities[index] = data.data.update_levels_by_pk;
-          _entities = _entities.map((entity, index) => {
-            return { ...entity, numero: index + 1 };
-          });
-          setEntities(_entities);
-          toast.current.show({
-            severity: 'success',
-            summary: 'Éxito',
-            detail: 'Información actualizada',
-            life: 3000,
-          });
-        });
-        //Insertar NUEVO
-      } else {
-        addEntity({
-          variables: { object: _entity },
-        })
-          .then((data) => {
-            _entities.push(data.data.insert_levels_one);
-            _entities = _entities.map((entity, index) => {
-              return { ...entity, numero: index + 1 };
-            });
-            setEntities(_entities);
-            toast.current.show({
-              severity: 'success',
-              summary: 'Éxito',
-              detail: 'Información guardada',
-              life: 3000,
-            });
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      }
-      setEntityDialog(false);
-      setEntity(emptyEntity);
-    } else {
-      toast.current.show({
-        severity: 'error',
-        summary: 'Datos faltantes',
-        detail: 'Por favor revise los Datos faltantes',
-        life: 3000,
-      });
-    }
+    setDeleteEntityDialog(true);
   };
   const editEntity = (entity) => {
     setEntity({ ...entity });
+    console.log(entity);
     setEntityDialog(true);
   };
   const confirmDeleteEntity = (entity) => {
@@ -206,7 +166,7 @@ export const Niveles = graphql(() => {
       toast.current.show({
         severity: 'success',
         summary: 'Éxito',
-        detail: 'Registro eliminado',
+        detail: 'Alumno eliminado',
         life: 3000,
       });
     });
@@ -221,6 +181,21 @@ export const Niveles = graphql(() => {
     }
     return index;
   };
+  const matriculas = [
+    { name: '201525296', code: 'AU' },
+    { name: '202011111', code: 'BR' },
+  ];
+  const fileType = [
+    { name: 'Acta de nacimiento', code: 'AU' },
+    { name: 'CURP', code: 'BR' },
+    { name: 'Identificación', code: 'CN' },
+    { name: 'Credencial escolar', code: 'EG' },
+    { name: 'Pago de curso', code: 'Df' },
+    { name: 'Pago de constancia', code: 'DE' },
+    { name: 'Constancia de nivel', code: 'FR' },
+    { name: 'Constancia Final', code: 'IN' },
+  ];
+
   const confirmDeleteSelected = () => {
     setDeleteEntitiesDialog(true);
   };
@@ -240,7 +215,7 @@ export const Niveles = graphql(() => {
       toast.current.show({
         severity: 'success',
         summary: 'Éxito',
-        detail: 'Niveles Eliminados',
+        detail: 'Alumnos eliminados',
         life: 3000,
       });
     });
@@ -260,13 +235,6 @@ export const Niveles = graphql(() => {
           className="p-button-success p-mr-2"
           onClick={openNew}
         />
-        <Button
-          label="Eliminar"
-          icon="pi pi-trash"
-          className="p-button-danger"
-          onClick={confirmDeleteSelected}
-          disabled={!selectedEntities || !selectedEntities.length}
-        />
       </React.Fragment>
     );
   };
@@ -278,17 +246,36 @@ export const Niveles = graphql(() => {
     return (
       <div className="actions">
         <Button
-          icon="pi pi-pencil"
+          icon="pi pi-arrow-left"
           className="p-button-rounded p-button-success p-mr-2"
           onClick={() => editEntity(rowData)}
         />
+        <span>CURP </span>
         <Button
-          icon="pi pi-trash"
-          className="p-button-rounded p-button-danger"
+          icon="pi pi-arrow-right"
+          className="p-button-rounded p-button-success p-mr-2r"
           onClick={() => confirmDeleteEntity(rowData)}
         />
       </div>
     );
+  };
+  const actionBodyTemplate2 = (rowData) => {
+    return (
+      <div className="actions">
+        <Button
+          icon="pi pi-eye"
+          label="Ver expediente"
+          className="p-button p-button-success p-mr-2"
+          onClick={() => handlePdfClick(rowData)}
+        />
+      </div>
+    );
+  };
+  const handlePdfClick = () => {
+    setPdfDialog(true);
+  };
+  const workingAlert = () => {
+    alert('Working on it');
   };
   const header = () => {
     return (
@@ -349,12 +336,13 @@ export const Niveles = graphql(() => {
       />
     </>
   );
+
   return (
     <div>
       <div className="p-grid">
         <div className="p-col-12">
           <Card
-            title="Administración de Niveles"
+            title="Administración de expediente de alumnos"
             className="card no-gutter widget-overview-box widget-overview-box-1"
           >
             {/* <MyQueryQuery></MyQueryQuery> */}
@@ -365,79 +353,99 @@ export const Niveles = graphql(() => {
                   className="p-mb-4"
                   left={leftToolbarTemplate}
                 ></Toolbar>
-
-                <DataTable
-                  ref={dt}
-                  value={entities}
-                  selection={selectedEntities}
-                  onSelectionChange={(e) => setselectedEntities(e.value)}
-                  dataKey="id"
-                  paginator
-                  rows={10}
-                  rowsPerPageOptions={[5, 10, 25]}
-                  className="datatable-responsive"
-                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                  currentPageReportTemplate="Mostrando de {first} a {last} de un total de {totalRecords} registros"
-                  globalFilter={globalFilter}
-                  emptyMessage="No hay niveles registrados."
-                  header={header()}
-                  //exportFunction={exportFunction}
-                >
-                  <Column
-                    selectionMode="multiple"
-                    headerStyle={{ width: '10%' }}
-                  />
-                  <Column
-                    field="numero"
-                    header="#"
-                    body={onIndexTemplate}
-                    headerStyle={{ width: '20%' }}
-                  />
-                  <Column
-                    field="id"
-                    header="id"
-                    style={{ width: '0%', display: 'none' }}
-                    hidden="true"
-                  />
-                  <Column
-                    field="level"
-                    header="Nivel"
-                    headerStyle={{ width: '30%' }}
-                  />
-                  <Column
-                    body={actionBodyTemplate}
-                    headerStyle={{ width: '20%' }}
-                  />
-                </DataTable>
+                <div className="datatable-responsive">
+                  <div className="card">
+                    <DataTable
+                      ref={dt}
+                      value={entities}
+                      selection={selectedEntities}
+                      onSelectionChange={(e) => setselectedEntities(e.value)}
+                      dataKey="id"
+                      paginator
+                      rows={10}
+                      rowsPerPageOptions={[5, 10, 25]}
+                      className="datatable-responsive"
+                      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                      currentPageReportTemplate="Mostrando de {first} a {last} de un total de {totalRecords} registros"
+                      globalFilter={globalFilter}
+                      emptyMessage="No hay alumnos registrados."
+                      header={header()}
+                      //exportFunction={exportFunction}
+                    >
+                      <Column
+                        field="numero"
+                        header="#"
+                        body={onIndexTemplate}
+                        headerStyle={{ width: '10%' }}
+                      />
+                      <Column
+                        field="id"
+                        header="id"
+                        style={{ width: '0%', display: 'none' }}
+                        hidden="true"
+                      />
+                      <Column
+                        field="username"
+                        header="Matricula"
+                        headerStyle={{ width: '20%' }}
+                      />
+                      <Column
+                        field="first_name"
+                        header="Nombre(s)"
+                        headerStyle={{ width: '20%' }}
+                      />
+                      <Column
+                        field="last_name"
+                        header="Apellidos"
+                        headerStyle={{ width: '20%' }}
+                      />
+                      <Column
+                        body={actionBodyTemplate2}
+                        headerStyle={{ width: '20%' }}
+                      />
+                    </DataTable>
+                  </div>
+                </div>
               </>
             )}
             <Dialog
               visible={entityDialog}
-              header="Nivel"
+              header="Carga de archivos"
               modal
               style={{ width: '50vw' }}
               className="p-fluid"
               footer={entityDialogFooter}
               onHide={hideDialog}
             >
-              <div className="p-field">
-                <label htmlFor="entity">Nombre:</label>
-                <InputText
-                  id="entity"
-                  value={entity.level}
-                  onChange={(e) => onInputChange(e, 'level')}
-                  required={true}
-                  rows={3}
-                  cols={20}
-                  className={classNames({
-                    'p-invalid': submitted && !entity?.level,
-                  })}
-                />
-                {submitted && !entity?.level && (
-                  <medium className="p-invalid">
-                    Se requiere el nombre del nivel.
-                  </medium>
-                )}
+              <div className="p-grid">
+                <div className="p-field p-col-12 p-md-6 p-lg-4">
+                  <label htmlFor="entity">Matricula:</label>
+                  <Dropdown
+                    value={entity.username}
+                    options={matriculas}
+                    onChange={onInputChange}
+                    optionLabel="name"
+                    placeholder="Selecciona la matricula del alumno"
+                  />
+                </div>
+                <div className="p-field p-col-12 p-md-6 p-lg-4">
+                  <label htmlFor="entity">Archivo:</label>
+                  <Dropdown
+                    options={fileType}
+                    onChange={onInputChange}
+                    optionLabel="name"
+                    placeholder="Selecciona el archivo que se va a cargar"
+                  />
+                </div>
+                <div className="p-field p-col-12 p-md-6 p-lg-4">
+                  <Button
+                    icon="pi pi-file-pdf"
+                    label="Seleccionar documento"
+                    className="p-button p-button-success p-mr-2"
+                    onClick={workingAlert}
+                    style={{ marginTop: '23px' }}
+                  />
+                </div>
               </div>
             </Dialog>
             <Dialog
@@ -455,11 +463,20 @@ export const Niveles = graphql(() => {
                 />
                 {entity && (
                   <span>
-                    ¿Estas seguro de borrar este nivel:{' '}
-                    <b>{entity.numero + '.-' + entity.level}</b>?
+                    El archivo: <b>CURP</b>. Ya existe dentro del expediente de
+                    este alumno, ¿Desea remplasarlo?
                   </span>
                 )}
               </div>
+            </Dialog>
+            <Dialog
+              modal
+              header={actionBodyTemplate}
+              style={{ width: '80%', height: '90%' }}
+              visible={pdfDialog}
+              onHide={() => setPdfDialog(false)}
+            >
+              <PDFtest></PDFtest>
             </Dialog>
             <Dialog
               visible={deleteEntitiesDialog}
@@ -476,7 +493,7 @@ export const Niveles = graphql(() => {
                 />
                 {entity && (
                   <span>
-                    ¿Estas seguro de borrar los niveles seleccionados?
+                    ¿Estas seguro de borrar los alumnos seleccionados?
                   </span>
                 )}
               </div>
